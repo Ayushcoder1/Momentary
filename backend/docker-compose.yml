@@ -1,0 +1,23 @@
+version: "3.9"
+
+services:
+  backend:
+    build:
+      context: .
+    environment:
+      - PORT=4000
+      - STORAGE_DRIVER=fs
+      - LOCAL_STORE_DIR=/data
+      # For S3 mode, set:
+      # - STORAGE_DRIVER=s3
+      # - S3_BUCKET=your-bucket
+      # - AWS_REGION=us-east-1
+      # - S3_ENDPOINT=http://minio:9000  # optional
+    volumes:
+      - data:/data
+    ports:
+      - "4000:4000"
+
+volumes:
+  data:
+
