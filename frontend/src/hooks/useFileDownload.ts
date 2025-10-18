@@ -3,6 +3,9 @@ import { useState } from 'react';
 export function useFileDownload() {
   const [code, setCode] = useState('');
   const [downloading, setDownloading] = useState(false);
+  
+  const dns = "https://dhth0qwhtmigc.cloudfront.net/momentary";
+  // const dns = "http://localhost:4000";
 
   const download = async () => {
     const clean = code.trim().toUpperCase();
@@ -19,7 +22,7 @@ export function useFileDownload() {
         preOpenedWindow = null;
       }
 
-      const res = await fetch(`/files/${encodeURIComponent(clean)}`);
+      const res = await fetch(`${dns}/files/${encodeURIComponent(clean)}`);
       if (!res.ok) {
         const err = await res.json().catch(() => ({ error: res.statusText }));
         throw new Error(err.error || 'Download failed');
@@ -100,4 +103,7 @@ export function useFileDownload() {
     setCodeValue
   };
 }
+
+
+
 

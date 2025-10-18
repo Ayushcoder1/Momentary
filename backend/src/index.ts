@@ -2,6 +2,7 @@ import 'dotenv/config';
 import express from 'express';
 import cors from 'cors';
 import filesRouter from './routes/files.js';
+import { config } from './config.js';
 import { startCleanupJob } from './jobs/cleanup.js';
 
 const app = express();
@@ -18,11 +19,12 @@ const stopCleanup = startCleanupJob();
 app.listen(port, () => {
   // eslint-disable-next-line no-console
   console.log(`TempShare backend listening on http://localhost:${port}`);
+  // eslint-disable-next-line no-console
+  console.log(`[startup] storageDriver=${config.storageDriver} localStoreDir=${config.localStoreDir}`);
 });
 
 process.on('SIGINT', () => {
   stopCleanup();
   process.exit(0);
 });
-
 

@@ -7,6 +7,10 @@ export function useFileUpload() {
   const [submitting, setSubmitting] = useState(false);
 
   const canSubmit = useMemo(() => Boolean(formData.file) && !submitting, [formData.file, submitting]);
+  const dns = "https://dhth0qwhtmigc.cloudfront.net/momentary";
+  // const dns = "http://localhost:4000";
+  // const dns = "http://ec2-13-235-78-242.ap-south-1.compute.amazonaws.com/momentary"
+
 
   const setFile = (file: File | null) => {
     setFormData(prev => ({ ...prev, file }));
@@ -25,7 +29,7 @@ export function useFileUpload() {
       form.set('file', formData.file);
       form.set('ttlMinutes', String(formData.ttl));
       
-      const res = await fetch('/files/upload', { method: 'POST', body: form });
+      const res = await fetch(`${dns}/files/upload`, { method: 'POST', body: form });
       if (!res.ok) {
         const err = await res.json().catch(() => ({ error: res.statusText }));
         throw new Error(err.error || 'Upload failed');
@@ -65,4 +69,7 @@ export function useFileUpload() {
     reset
   };
 }
+
+
+
 

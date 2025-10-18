@@ -54,14 +54,19 @@ export const s3Provider: StorageProvider = {
   },
 
   async cleanupExpired() {
-    // Brute-force: list meta objects and delete those expired
+    // Iterate meta objects and delete expired ones with gentle limits
+    const maxKeys = Math.max(100, Number(process.env.CLEANUP_S3_MAX_KEYS) || 500);
+    const maxDeletes = Math.max(50, Number(process.env.CLEANUP_MAX_DELETES) || 1000);
     let token: string | undefined;
     let deleted = 0;
     do {
-      const list = await s3.send(new ListObjectsV2Command({ Bucket: config.uploadBucket, Prefix: META_PREFIX, ContinuationToken: token }));
+      const list = await s3.send(
+        new ListObjectsV2Command({ Bucket: config.uploadBucket, Prefix: META_PREFIX, ContinuationToken: token, MaxKeys: maxKeys })
+      );
       token = list.IsTruncated ? list.NextContinuationToken : undefined;
       const contents = list.Contents ?? [];
       for (const obj of contents) {
+        if (deleted >= maxDeletes) return deleted;
         if (!obj.Key) continue;
         try {
           const metaRes = await s3.send(new GetObjectCommand({ Bucket: config.uploadBucket, Key: obj.Key }));
@@ -76,7 +81,7 @@ export const s3Provider: StorageProvider = {
           // ignore
         }
       }
-    } while (token);
+    } while (token && deleted < maxDeletes);
     return deleted;
   },
 };
